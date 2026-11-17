@@ -49,6 +49,7 @@ pub struct TickState {
 }
 
 impl TickState {
+    /// Create a paused generator with no emitted ticks.
     pub fn new(start_time: DateTime<Utc>, tick_interval: Duration) -> Result<Self, StateError> {
         Self::validate_interval(tick_interval)?;
         Ok(Self {
@@ -62,6 +63,7 @@ impl TickState {
         })
     }
 
+    /// Capture the current state and elapsed wall-clock time.
     pub fn snapshot(&self) -> TickSnapshot {
         self.snapshot_at(Instant::now())
     }
@@ -104,6 +106,7 @@ impl TickState {
         Ok(())
     }
 
+    /// Pause before the next tick without changing the run.
     pub fn pause(&mut self) -> Result<(), StateError> {
         if !self.running {
             return Err(StateError::NotRunning);
@@ -112,6 +115,7 @@ impl TickState {
         Ok(())
     }
 
+    /// Resume a paused run without emitting an extra tick.
     pub fn resume(&mut self) -> Result<(), StateError> {
         if self.running {
             return Err(StateError::AlreadyRunning);
@@ -123,6 +127,7 @@ impl TickState {
         Ok(())
     }
 
+    /// Stop the run and reset the tick counter and simulation epoch.
     pub fn reset(&mut self, start_time: DateTime<Utc>) {
         self.tick = 0;
         self.start_time = start_time;
@@ -132,12 +137,14 @@ impl TickState {
         self.last_tick_wall_time = None;
     }
 
+    /// Set the wall-clock duration between ticks.
     pub fn set_tick_interval(&mut self, interval: Duration) -> Result<(), StateError> {
         Self::validate_interval(interval)?;
         self.tick_interval = interval;
         Ok(())
     }
 
+    /// Return whether ticks are currently being generated.
     pub fn is_running(&self) -> bool {
         self.running
     }
