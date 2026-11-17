@@ -1,0 +1,31 @@
+services:
+  tickgen:
+    build:
+      context: .
+      dockerfile: tickgen/Dockerfile
+    environment:
+      TICKGEN_HOST: 0.0.0.0
+      TICKGEN_DISCOVERY_URL: opc.tcp://tickgen:4840/AdaptiveEnergySystem/TickGen
+      TICKGEN_START_TICKS: "4"
+      TICKGEN_TICK_INTERVAL_SECONDS: "3"
+      RUST_LOG: info,opcua=warn
+    ports:
+      - "4840:4840"
+    networks:
+      - powergrid
+
+  example_subscriber:
+    build:
+      context: .
+      dockerfile: example_subscriber/Dockerfile
+    environment:
+      TICKGEN_URL: opc.tcp://tickgen:4840/AdaptiveEnergySystem/TickGen
+      RUST_LOG: info,opcua=warn
+    depends_on:
+      - tickgen
+    networks:
+      - powergrid
+
+networks:
+  powergrid:
+    driver: bridge
