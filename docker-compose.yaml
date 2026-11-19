@@ -1,48 +1,34 @@
+# Trick to avoid re-builds
+x-app: &app
+  image: adaptive-energy-system:latest
+  env_file:
+    - .env
+  networks:
+    - powergrid
+
 services:
   tickgen:
+    <<: *app
     build:
       context: .
-      dockerfile: tickgen/Dockerfile
-    environment:
-      TICKGEN_HOST: 0.0.0.0
-      TICKGEN_DISCOVERY_URL: opc.tcp://tickgen:4840/AdaptiveEnergySystem/TickGen
-      TICKGEN_START_TICKS: "96"
-      TICKGEN_START_DELAY_SECONDS: "5"
-      TICKGEN_TICK_INTERVAL_SECONDS: "1"
-      TICKGEN_START_TIME: "2026-01-01T08:00:00Z"
-      RUST_LOG: info,opcua=warn
+      dockerfile: Dockerfile
+    command: ["/usr/local/bin/tickgen"]
     ports:
       - "4840:4840"
-    networks:
-      - powergrid
 
   dl:
-    build:
-      context: .
-      dockerfile: consumer/dl/Dockerfile
-    environment:
-      DL_HOST: 0.0.0.0
-      DL_DISCOVERY_URL: opc.tcp://dl:4842/AdaptiveEnergySystem/DeferrableLoad
-      TICKGEN_URL: opc.tcp://tickgen:4840/AdaptiveEnergySystem/TickGen
-      RUST_LOG: info,opcua=warn
+    <<: *app
+    command: ["/usr/local/bin/deferrable_load"]
     ports:
       - "4842:4842"
     depends_on:
       - tickgen
-    networks:
-      - powergrid
 
   example_subscriber:
-    build:
-      context: .
-      dockerfile: example_subscriber/Dockerfile
-    environment:
-      TICKGEN_URL: opc.tcp://tickgen:4840/AdaptiveEnergySystem/TickGen
-      RUST_LOG: info,opcua=warn
+    <<: *app
+    command: ["/usr/local/bin/example_subscriber"]
     depends_on:
       - tickgen
-    networks:
-      - powergrid
 
 networks:
   powergrid:
