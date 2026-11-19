@@ -1,11 +1,6 @@
 # Deferrable washing machine
 
-A washing machine that is controlled from the outside over OPC UA. It does not
-read electricity prices and does not decide when to run. An energy management
-system (EMS) sets a deadline, then calls `Start`, `Pause`, `Resume` or `Stop`.
-
-The appliance itself only advances when TickGen emits a tick. One TickGen tick
-is 15 simulated minutes.
+A washing machine that is controlled from the outside over OPC UA.
 
 ## Control contract
 
@@ -21,10 +16,6 @@ There is no automatic start. If no EMS calls `Start`, the machine stays `Idle`.
 
 ## Cycle model
 
-The default programme is a 90-minute 40 °C daily wash using about 0.99 kWh. The
-power profile is not constant: heating dominates, while the wash, rinse and
-spin phases use much less power.
-
 | Phase | Duration | Average power | Energy |
 |---|---:|---:|---:|
 | Fill & pre-wash | 10 min | 0.10 kW | 0.017 kWh |
@@ -35,12 +26,6 @@ spin phases use much less power.
 | Final spin | 15 min | 0.45 kW | 0.113 kWh |
 | **Total** | **90 min** | | **0.988 kWh** |
 
-The phase boundaries do not all align with 15-minute ticks. For every tick the
-model integrates the energy over the covered phases, and the `Phase` node
-reports the phase that contributed the most energy during that tick. This gives
-per-tick power values such as 0.73 kW, 2.0 kW, 0.2 kW, 0.37 kW and 0.45 kW
-instead of a single constant power.
-
 `Pause` freezes both the phase clock and the energy counter. `Stop` resets the
 cycle to zero.
 
@@ -49,9 +34,6 @@ cycle to zero.
 `Deadline` is a **finish-by** time in simulation time. `LatestStart` is
 `Deadline - 90 minutes`, assuming no pauses. Pauses extend the elapsed
 simulation time, so an EMS that plans to pause should start earlier.
-
-`DeadlineMet` becomes meaningful when the cycle reaches `Done`. Changing the
-deadline after completion re-evaluates it against the recorded completion time.
 
 ## OPC UA nodes
 
@@ -74,18 +56,6 @@ Object `DeferrableLoad`:
 | `CycleEnergyKwh` | `Double` | Nominal energy of a complete cycle |
 | `SimulationTime` | `DateTime` | Last processed simulation time |
 | `TickGenConnected` | `Boolean` | Whether the appliance is subscribed to TickGen |
-
-## Environment variables
-
-| Variable | Default |
-|---|---|
-| `DL_HOST` | `127.0.0.1` |
-| `DL_PORT` | `4842` |
-| `DL_ENDPOINT_PATH` | `/AdaptiveEnergySystem/DeferrableLoad` |
-| `DL_DISCOVERY_URL` | Derived from host, port and path |
-| `DL_PKI_DIR` | `./pki` |
-| `DL_CLIENT_PKI_DIR` | `./pki/client` |
-| `TICKGEN_URL` | `opc.tcp://127.0.0.1:4840/AdaptiveEnergySystem/TickGen` |
 
 ## Sources for the cycle model
 

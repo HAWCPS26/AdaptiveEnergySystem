@@ -29,23 +29,6 @@ Agents should monitor `CurrentTick` and then read the other values to react. Its
 - `Reset(StartTime: DateTime)` — stop and reset to tick zero.
 - `SetTickInterval(Seconds: Double)` — change the wall-clock interval; the new value applies to the next tick wait.
 
-The provided endpoint uses anonymous access and `SecurityPolicy::None` for local simulation. It is not a production security configuration.
-
-### Environment variables
-
-| Variable | Default |
-|---|---|
-| `TICKGEN_HOST` | `127.0.0.1` |
-| `TICKGEN_PORT` | `4840` |
-| `TICKGEN_ENDPOINT_PATH` | `/AdaptiveEnergySystem/TickGen` |
-| `TICKGEN_DISCOVERY_URL` | Derived from host, port, and path |
-| `TICKGEN_PKI_DIR` | `./pki` |
-| `TICKGEN_TICK_INTERVAL_SECONDS` | `10` |
-| `TICKGEN_START_TIME` | Current UTC time |
-| `TICKGEN_START_TICKS` | `0` (paused) |
-| `TICKGEN_START_DELAY_SECONDS` | `0` |
-| `TICKGEN_URL` (subscriber) | `opc.tcp://127.0.0.1:4840/AdaptiveEnergySystem/TickGen` |
-
 ## Checks
 
 ```sh
