@@ -3,6 +3,7 @@ WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY tickgen ./tickgen
 COPY example_subscriber ./example_subscriber
+COPY consumer ./consumer
 RUN cargo build --release --package example_subscriber
 
 FROM debian:bookworm-slim
