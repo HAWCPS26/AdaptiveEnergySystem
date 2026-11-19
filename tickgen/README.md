@@ -15,7 +15,7 @@ All nodes are components of `Objects/TickGenerator`:
 | `SimulatedTickMinutes` | `UInt32` | Simulated duration between ticks; always 15 |
 | `TimeSinceLastTick` | `Duration` | Wall-clock **milliseconds** since the latest emitted tick; zero before tick one |
 
-`Start(N)` emits tick one immediately, then emits subsequent ticks at the configured wall-clock interval. Each new tick advances `SimulationTime` by 15 simulated minutes. The run stops one interval after its final tick, without emitting an extra tick. Starting a later run continues the tick number.
+`Start(N)` emits tick one immediately, then emits subsequent ticks at the configured wall-clock interval. Set `TICKGEN_START_DELAY_SECONDS` to delay the automatic start so clients can connect first. Each new tick advances `SimulationTime` by 15 simulated minutes. The run stops one interval after its final tick, without emitting an extra tick. Starting a later run continues the tick number.
 
 `TimeSinceLastTick` is evaluated when read or sampled, so its value continues to increase between ticks. Pause does not stop this elapsed-time measurement.
 
@@ -43,6 +43,7 @@ The provided endpoint uses anonymous access and `SecurityPolicy::None` for local
 | `TICKGEN_TICK_INTERVAL_SECONDS` | `10` |
 | `TICKGEN_START_TIME` | Current UTC time |
 | `TICKGEN_START_TICKS` | `0` (paused) |
+| `TICKGEN_START_DELAY_SECONDS` | `0` |
 | `TICKGEN_URL` (subscriber) | `opc.tcp://127.0.0.1:4840/AdaptiveEnergySystem/TickGen` |
 
 ## Checks

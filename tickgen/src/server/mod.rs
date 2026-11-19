@@ -6,6 +6,8 @@ mod shared;
 
 pub use config::{ServerConfig, ServerError};
 
+use std::time::Duration;
+
 use opcua::{
     crypto::SecurityPolicy,
     server::{
@@ -16,7 +18,7 @@ use opcua::{
     types::{BuildInfo, DataValue, DateTime as OpcUaDateTime, MessageSecurityMode},
 };
 use tokio::{net::TcpListener, task::JoinHandle};
-use tracing::warn;
+use tracing::{info, warn};
 
 use crate::{StateError, TickState};
 
@@ -129,6 +131,24 @@ impl TickGenServer {
     /// Start a finite run and emit its first tick.
     pub fn start(&self, ticks: u64) -> Result<(), StateError> {
         self.shared.start(ticks)
+    }
+
+    /// Start a finite run after the given wall-clock delay.
+    ///
+    /// This lets subscribers connect before the first tick is emitted.
+    pub fn start_after(&mut self, ticks: u64, delay: Duration) {
+        let shared = self.shared.clone();
+        let task = tokio::spawn(async move {
+            if !delay.is_zero() {
+                tokio::time::sleep(delay).await;
+            }
+            if let Err(error) = shared.start(ticks) {
+                warn!("Could not start the delayed tick run: {error}");
+            } else {
+                info!("Started {ticks} ticks after a {delay:?} delay");
+            }
+        });
+        self.tasks.push(task);
     }
 
     /// Run the server until it is cancelled.

@@ -1,0 +1,18 @@
+[package]
+name = "deferrable_load"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+async-opcua = { version = "0.19", features = ["client", "server"] }
+chrono = "0.4"
+parking_lot = "0.12"
+thiserror = "2"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tempdir = "0.3"
+tickgen = { path = "../../tickgen" }

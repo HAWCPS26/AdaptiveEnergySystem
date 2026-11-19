@@ -17,6 +17,7 @@ pub struct ServerConfig {
     pub tick_interval: Duration,
     pub start_time: DateTime<Utc>,
     pub start_ticks: u64,
+    pub start_delay: Duration,
 }
 
 impl Default for ServerConfig {
@@ -30,6 +31,7 @@ impl Default for ServerConfig {
             tick_interval: Duration::from_secs(10),
             start_time: Utc::now(),
             start_ticks: 0,
+            start_delay: Duration::ZERO,
         }
     }
 }
@@ -52,6 +54,12 @@ impl ServerConfig {
             config.tick_interval.as_secs_f64(),
         )?;
         config.tick_interval = duration_from_seconds(interval_seconds)?;
+
+        let start_delay_seconds = parse_env(
+            "TICKGEN_START_DELAY_SECONDS",
+            config.start_delay.as_secs_f64(),
+        )?;
+        config.start_delay = duration_from_non_negative_seconds(start_delay_seconds)?;
 
         if let Ok(start_time) = env::var("TICKGEN_START_TIME") {
             config.start_time = DateTime::parse_from_rfc3339(&start_time)
@@ -106,6 +114,16 @@ pub(super) fn duration_from_seconds(seconds: f64) -> Result<Duration, ServerErro
     }
     Duration::try_from_secs_f64(seconds)
         .map_err(|error| ServerError::Configuration(format!("Invalid tick interval: {error}")))
+}
+
+fn duration_from_non_negative_seconds(seconds: f64) -> Result<Duration, ServerError> {
+    if !seconds.is_finite() || seconds < 0.0 {
+        return Err(ServerError::Configuration(
+            "Start delay must be finite and not negative".to_owned(),
+        ));
+    }
+    Duration::try_from_secs_f64(seconds)
+        .map_err(|error| ServerError::Configuration(format!("Invalid start delay: {error}")))
 }
 
 #[derive(Debug, Error)]

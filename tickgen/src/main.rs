@@ -12,12 +12,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = ServerConfig::from_env()?;
     let start_ticks = config.start_ticks;
+    let start_delay = config.start_delay;
     let endpoint_url = config.endpoint_url();
-    let server = TickGenServer::new(config)?;
+    let mut server = TickGenServer::new(config)?;
 
     if start_ticks > 0 {
-        server.start(start_ticks)?;
-        info!("Automatically started {start_ticks} ticks");
+        if start_delay.is_zero() {
+            server.start(start_ticks)?;
+            info!("Automatically started {start_ticks} ticks");
+        } else {
+            server.start_after(start_ticks, start_delay);
+            info!("Starting {start_ticks} ticks in {start_delay:?}");
+        }
     }
 
     info!("TickGen OPC UA endpoint: {endpoint_url}");

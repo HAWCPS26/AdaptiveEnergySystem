@@ -1,5 +1,5 @@
 [workspace]
-members = ["tickgen", "example_subscriber"]
+members = ["tickgen", "example_subscriber", "consumer/dl"]
 resolver = "2"
 
 [workspace.package]
